@@ -17,7 +17,7 @@ var (
 	ErrBadRouting = errors.New("bad routing")
 )
 
-func Handle(r *mux.Router, pathPrefix string, endpoints Endpoints, errorLogger log.Logger) {
+func MakeHandler(pathPrefix string, endpoints Endpoints, errorLogger log.Logger) http.Handler {
 	options := []gokithttp.ServerOption{
 		gokithttp.ServerErrorEncoder(encodeErrorResponse),
 		gokithttp.ServerErrorHandler(gokittransport.NewLogErrorHandler(errorLogger)),
@@ -28,11 +28,13 @@ func Handle(r *mux.Router, pathPrefix string, endpoints Endpoints, errorLogger l
 	updateUserHandler := gokithttp.NewServer(endpoints.UpdateUser, decodeUpdateUserRequest, encodeResponse, options...)
 	deleteUserHandler := gokithttp.NewServer(endpoints.DeleteUser, decodeDeleteUserRequest, encodeResponse, options...)
 
+	r := mux.NewRouter()
 	s := r.PathPrefix(pathPrefix).Subrouter()
 	s.Handle("", createUserHandler).Methods(http.MethodPost)
 	s.Handle("/{userId}", findUserHandler).Methods(http.MethodGet)
 	s.Handle("/{userId}", updateUserHandler).Methods(http.MethodPut)
 	s.Handle("/{userId}", deleteUserHandler).Methods(http.MethodDelete)
+	return r
 }
 
 func decodeCreateUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {

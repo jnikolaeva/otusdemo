@@ -8,7 +8,6 @@ import (
 	"github.com/arahna/otusdemo/user/transport"
 	gokitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -46,14 +45,13 @@ func main() {
 	service := application.NewService(repository)
 	endpoints := transport.MakeEndpoints(service)
 
-	router := mux.NewRouter()
+	mux := http.NewServeMux()
 
-	transport.Handle(router, "/api/v1/user", endpoints, errorLogger)
+	mux.Handle("/api/v1/", transport.MakeHandler("/api/v1/user", endpoints, errorLogger))
+	mux.Handle("/ready", probes.MakeReadyHandler())
+	mux.Handle("/live", probes.MakeLiveHandler())
 
-	router.Handle("/ready", probes.MakeReadyHandler())
-	router.Handle("/live", probes.MakeLiveHandler())
-
-	srv := startServer(serverAddr, router, logger)
+	srv := startServer(serverAddr, mux, logger)
 
 	waitForShutdown(srv)
 	logger.Info("shutting down")
