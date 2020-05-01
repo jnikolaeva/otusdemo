@@ -28,9 +28,6 @@ type deleteUserRequest struct {
 	ID string `json:"userId"`
 }
 
-type deleteUserResponse struct {
-}
-
 type errorResponse struct {
 	Code    uint32 `json:"code"`
 	Message string `json:"message"`

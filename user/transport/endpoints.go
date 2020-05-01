@@ -66,6 +66,6 @@ func makeDeleteUserEndpoint(s application.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(deleteUserRequest)
 		err := s.Delete(req.ID)
-		return &deleteUserResponse{}, err
+		return nil, err
 	}
 }

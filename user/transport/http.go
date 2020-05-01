@@ -78,10 +78,11 @@ func decodeDeleteUserRequest(_ context.Context, r *http.Request) (request interf
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if response == nil {
-		return json.NewEncoder(w).Encode("{}")
+		w.WriteHeader(http.StatusNoContent)
+		return nil
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	return json.NewEncoder(w).Encode(response)
 }
 
