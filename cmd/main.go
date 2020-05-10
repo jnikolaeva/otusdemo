@@ -5,7 +5,7 @@ import (
 	"github.com/arahna/otusdemo/probes"
 	"github.com/arahna/otusdemo/user/application"
 	"github.com/arahna/otusdemo/user/infrastructure/postgres"
-	"github.com/arahna/otusdemo/user/transport"
+	"github.com/arahna/otusdemo/user/infrastructure/transport"
 	gokitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/sirupsen/logrus"
@@ -22,7 +22,7 @@ const (
 )
 
 func main() {
-	serverAddr := ":" + envString("OTUSDEMOAPP_PORT", defaultPort)
+	serverAddr := ":" + envString("APP_PORT", defaultPort)
 
 	logger := logrus.New()
 	logger.SetOutput(os.Stdout)
@@ -41,13 +41,23 @@ func main() {
 		"@timestamp", gokitlog.DefaultTimestampUTC,
 	)
 
-	repository := postgres.New()
+	connConfig, err := postgres.ParseEnvConfig(appName)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	connectionPool, err := postgres.NewConnectionPool(connConfig)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	defer connectionPool.Close()
+
+	repository := postgres.New(connectionPool)
 	service := application.NewService(repository)
 	endpoints := transport.MakeEndpoints(service)
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/api/v1/", transport.MakeHandler("/api/v1/user", endpoints, errorLogger))
+	mux.Handle("/api/v1/", transport.MakeHandler("/api/v1/users", endpoints, errorLogger))
 	mux.Handle("/ready", probes.MakeReadyHandler())
 	mux.Handle("/live", probes.MakeLiveHandler())
 

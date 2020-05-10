@@ -1,14 +1,20 @@
 package application
 
-import "errors"
+import (
+	"errors"
+	"github.com/arahna/otusdemo/pkg/uuid"
+)
 
-var ErrUserNotFound = errors.New("user not found")
+var (
+	ErrUserNotFound  = errors.New("user not found")
+	ErrDuplicateUser = errors.New("user with such username already exists")
+)
 
 type Service interface {
 	Create(username, firstName, lastName, email, phone string) (UserID, error)
-	FindByID(id string) (User, error)
-	Update(id, firstName, lastName, email, phone string) error
-	Delete(id string) error
+	FindByID(id uuid.UUID) (User, error)
+	Update(id uuid.UUID, username, firstName, lastName, email, phone string) (User, error)
+	Delete(id uuid.UUID) error
 }
 
 func NewService(repo Repository) Service {
@@ -23,7 +29,7 @@ type service struct {
 
 func (s service) Create(username, firstName, lastName, email, phone string) (UserID, error) {
 	user := User{
-		ID:        "111111", // @todo
+		ID:        s.repo.NextID(),
 		Username:  username,
 		FirstName: firstName,
 		LastName:  lastName,
@@ -32,13 +38,13 @@ func (s service) Create(username, firstName, lastName, email, phone string) (Use
 	}
 
 	if err := s.repo.Add(user); err != nil {
-		return "", err
+		return user.ID, err
 	}
 
 	return user.ID, nil
 }
 
-func (s service) FindByID(id string) (User, error) {
+func (s service) FindByID(id uuid.UUID) (User, error) {
 	user, err := s.repo.FindByID(UserID(id))
 	if err != nil {
 		return user, err
@@ -46,20 +52,21 @@ func (s service) FindByID(id string) (User, error) {
 	return user, nil
 }
 
-func (s service) Update(id, firstName, lastName, email, phone string) error {
+func (s service) Update(id uuid.UUID, username, firstName, lastName, email, phone string) (User, error) {
 	user, err := s.repo.FindByID(UserID(id))
 	if err != nil {
-		return err
+		return user, err
 	}
 
+	user.Username = username
 	user.FirstName = firstName
 	user.LastName = lastName
 	user.Email = email
 	user.Phone = phone
 
-	return s.repo.Update(user)
+	return user, s.repo.Update(user)
 }
 
-func (s service) Delete(id string) error {
+func (s service) Delete(id uuid.UUID) error {
 	return s.repo.Delete(UserID(id))
 }

@@ -1,5 +1,7 @@
 package transport
 
+import "github.com/arahna/otusdemo/pkg/uuid"
+
 type createUserRequest struct {
 	userDetails
 }
@@ -9,7 +11,7 @@ type createUserResponse struct {
 }
 
 type findUserRequest struct {
-	ID string `json:"userId"`
+	ID uuid.UUID `json:"userId"`
 }
 
 type findUserResponse struct {
@@ -17,15 +19,16 @@ type findUserResponse struct {
 }
 
 type updateUserRequest struct {
-	ID string `json:"userId"`
+	ID uuid.UUID `json:"userId"`
 	userDetails
 }
 
 type updateUserResponse struct {
+	userData
 }
 
 type deleteUserRequest struct {
-	ID string `json:"userId"`
+	ID uuid.UUID `json:"userId"`
 }
 
 type errorResponse struct {

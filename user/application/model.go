@@ -1,6 +1,12 @@
 package application
 
-type UserID string
+import "github.com/arahna/otusdemo/pkg/uuid"
+
+type UserID uuid.UUID
+
+func (u UserID) String() string {
+	return uuid.UUID(u).String()
+}
 
 type User struct {
 	ID        UserID
@@ -12,6 +18,7 @@ type User struct {
 }
 
 type Repository interface {
+	NextID() UserID
 	Add(user User) error
 	FindByID(id UserID) (User, error)
 	Update(user User) error

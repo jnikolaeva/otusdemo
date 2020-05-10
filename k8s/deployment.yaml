@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otusdemo-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: otusdemo-app
+  template:
+    metadata:
+      labels:
+        app: otusdemo-app
+    spec:
+      containers:
+        - name: otusdemo
+          image: otusdemo:release-0.2.1
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: APP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: otusdemo-config
+                  key: APP_PORT
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: otusdemo-secret
+                  key: DB_URI
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /live
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /ready
+            initialDelaySeconds: 10
+            periodSeconds: 5

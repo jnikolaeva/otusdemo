@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/arahna/otusdemo/pkg/uuid"
 	"github.com/arahna/otusdemo/user/application"
 	"github.com/go-kit/kit/log"
 	gokittransport "github.com/go-kit/kit/transport"
@@ -47,8 +48,12 @@ func decodeCreateUserRequest(_ context.Context, r *http.Request) (request interf
 
 func decodeFindUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	vars := mux.Vars(r)
-	id, ok := vars["userId"]
+	sID, ok := vars["userId"]
 	if !ok {
+		return nil, ErrBadRouting
+	}
+	id, err := uuid.FromString(sID)
+	if err != nil {
 		return nil, ErrBadRouting
 	}
 	return findUserRequest{ID: id}, nil
@@ -56,7 +61,7 @@ func decodeFindUserRequest(_ context.Context, r *http.Request) (request interfac
 
 func decodeUpdateUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	vars := mux.Vars(r)
-	id, ok := vars["userId"]
+	sID, ok := vars["userId"]
 	if !ok {
 		return nil, ErrBadRouting
 	}
@@ -64,14 +69,22 @@ func decodeUpdateUserRequest(_ context.Context, r *http.Request) (request interf
 	if e := json.NewDecoder(r.Body).Decode(&req.userDetails); e != nil && e != io.EOF {
 		return nil, e
 	}
+	id, err := uuid.FromString(sID)
+	if err != nil {
+		return nil, ErrBadRouting
+	}
 	req.ID = id
 	return req, nil
 }
 
 func decodeDeleteUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	vars := mux.Vars(r)
-	id, ok := vars["userId"]
+	sID, ok := vars["userId"]
 	if !ok {
+		return nil, ErrBadRouting
+	}
+	id, err := uuid.FromString(sID)
+	if err != nil {
 		return nil, ErrBadRouting
 	}
 	return deleteUserRequest{ID: id}, nil
@@ -105,6 +118,14 @@ func translateError(err error) transportError {
 			Status: http.StatusNotFound,
 			Response: errorResponse{
 				Code:    101,
+				Message: err.Error(),
+			},
+		}
+	case application.ErrDuplicateUser:
+		return transportError{
+			Status: http.StatusConflict,
+			Response: errorResponse{
+				Code:    102,
 				Message: err.Error(),
 			},
 		}

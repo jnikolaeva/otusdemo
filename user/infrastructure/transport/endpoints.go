@@ -29,7 +29,7 @@ func makeCreateUserEndpoint(s application.Service) endpoint.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return &createUserResponse{ID: string(userID)}, err
+		return &createUserResponse{ID: userID.String()}, err
 	}
 }
 
@@ -40,32 +40,37 @@ func makeFindUserEndpoint(s application.Service) endpoint.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return &findUserResponse{
-			userData: userData{
-				ID: string(user.ID),
-				userDetails: userDetails{
-					FirstName: user.FirstName,
-					LastName:  user.LastName,
-					Email:     user.Email,
-					Phone:     user.Phone,
-				},
-			},
-		}, err
+		return &findUserResponse{toUserData(user)}, err
 	}
 }
 
 func makeUpdateUserEndpoint(s application.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(updateUserRequest)
-		err := s.Update(req.ID, req.FirstName, req.LastName, req.Email, req.Phone)
-		return &updateUserResponse{}, err
+		user, err := s.Update(req.ID, req.Username, req.FirstName, req.LastName, req.Email, req.Phone)
+		if err != nil {
+			return nil, err
+		}
+		return &updateUserResponse{toUserData(user)}, err
 	}
 }
 
 func makeDeleteUserEndpoint(s application.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(deleteUserRequest)
-		err := s.Delete(req.ID)
-		return nil, err
+		return nil, s.Delete(req.ID)
+	}
+}
+
+func toUserData(user application.User) userData {
+	return userData{
+		ID: user.ID.String(),
+		userDetails: userDetails{
+			Username:  user.Username,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+			Phone:     user.Phone,
+		},
 	}
 }

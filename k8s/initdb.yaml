@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: otusdemo-initdb
+spec:
+  template:
+    metadata:
+      name: otusdemo-initdb
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: post-install-job
+          env:
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: otusdemo-secret
+                  key: DB_URI
+          image: postgres:12.2
+          command:
+            - sh
+            - "-c"
+            - |
+              psql $DB_URI <<'EOF'
+                CREATE TABLE IF NOT EXISTS users (id UUID NOT NULL PRIMARY KEY, username VARCHAR(256) UNIQUE, first_name VARCHAR(256), last_name VARCHAR(256), email VARCHAR(256), phone VARCHAR(256));
+              EOF
+  backoffLimit: 2
