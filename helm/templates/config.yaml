@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otusdemo-config
+data:
+  APP_PORT: "8000"
+  DB_MAX_CONN: "10"
+  DB_TIMEOUT: "10"
