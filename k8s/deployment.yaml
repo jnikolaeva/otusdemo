@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: otusdemo
-          image: otusdemo:release-0.2.1
+          image: arahna/otusdemo:release-0.3
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8000

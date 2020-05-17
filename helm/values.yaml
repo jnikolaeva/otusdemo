@@ -7,7 +7,12 @@ replicaCount: 3
 image:
   repository: arahna/otusdemo
   pullPolicy: IfNotPresent
-  tag: release-0.2.1
+  tag: release-0.3
+
+migrationsimage:
+  repository: arahna/otusdemo-migrations
+  pullPolicy: IfNotPresent
+  tag: release-0.3
 
 service:
   type: NodePort
@@ -15,7 +20,11 @@ service:
 
 postgresql:
   enabled: true
-  postgresqlURI: postgresql+psycopg2://otus:otuspwd@postgres:5432/otusdemo
+  postgresqlUsername: otus
+  postgresqlPassword: otuspwd
+  postgresqlDatabase: otusdemo
+  service:
+    port: "5432"
 
 ingress:
   enabled: true
