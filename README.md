@@ -1,6 +1,12 @@
 This is demo service for Otus architect course. It implements simple CRUD user REST API.
 
-To run service with helm use command:
+Before running with helm at first time update helm dependencies:
+
+```
+make helm-update-dependencies
+```
+
+Then use:
 
 ````
 make run
