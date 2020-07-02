@@ -2,18 +2,23 @@ package main
 
 import (
 	"context"
-	"github.com/arahna/otusdemo/probes"
-	"github.com/arahna/otusdemo/user/application"
-	"github.com/arahna/otusdemo/user/infrastructure/postgres"
-	"github.com/arahna/otusdemo/user/infrastructure/transport"
-	gokitlog "github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	gokitlog "github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+	gokitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
+
+	"github.com/arahna/otusdemo/probes"
+	"github.com/arahna/otusdemo/user/application"
+	"github.com/arahna/otusdemo/user/infrastructure/postgres"
+	"github.com/arahna/otusdemo/user/infrastructure/transport"
 )
 
 const (
@@ -55,9 +60,25 @@ func main() {
 	service := application.NewService(repository)
 	endpoints := transport.MakeEndpoints(service)
 
+	userApiHandler := transport.InstrumentingMiddleware(
+		transport.MakeHandler("/api/v1/users", endpoints, errorLogger),
+		gokitprometheus.NewCounterFrom(prometheus.CounterOpts{
+			Namespace: "app",
+			Subsystem: "",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, []string{"method", "path", "status_code"}),
+		gokitprometheus.NewSummaryFrom(prometheus.SummaryOpts{
+			Namespace: "app",
+			Subsystem: "",
+			Name:      "request_latency_seconds",
+			Help:      "Total duration of request in seconds.",
+		}, []string{"method", "path"}))
+
 	mux := http.NewServeMux()
 
-	mux.Handle("/api/v1/", transport.MakeHandler("/api/v1/users", endpoints, errorLogger))
+	mux.Handle("/api/v1/", userApiHandler)
+	mux.Handle("/metrics", promhttp.Handler())
 	mux.Handle("/ready", probes.MakeReadyHandler())
 	mux.Handle("/live", probes.MakeLiveHandler())
 
