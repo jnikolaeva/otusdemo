@@ -31,4 +31,4 @@ spec:
             - "-c"
             - |
               migrate -database $DB_URI -source file://migrations up
-  backoffLimit: 2
+  backoffLimit: 6

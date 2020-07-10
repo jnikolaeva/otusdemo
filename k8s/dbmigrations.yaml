@@ -16,10 +16,10 @@ spec:
                 secretKeyRef:
                   name: otusdemo-secret
                   key: DB_URI
-          image: arahna/otusdemo-migrations:release-0.3
+          image: arahna/otusdemo-migrations:release-0.4
           command:
             - sh
             - "-c"
             - |
               migrate -database $DB_URI -source file://migrations up
-  backoffLimit: 2
+  backoffLimit: 6
