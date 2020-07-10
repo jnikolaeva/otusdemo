@@ -17,8 +17,8 @@ import (
 
 	"github.com/arahna/otusdemo/probes"
 	"github.com/arahna/otusdemo/user/application"
+	transport "github.com/arahna/otusdemo/user/infrastructure/http"
 	"github.com/arahna/otusdemo/user/infrastructure/postgres"
-	"github.com/arahna/otusdemo/user/infrastructure/transport"
 )
 
 const (
@@ -59,25 +59,21 @@ func main() {
 	repository := postgres.New(connectionPool)
 	service := application.NewService(repository)
 	endpoints := transport.MakeEndpoints(service)
-
-	userApiHandler := transport.InstrumentingMiddleware(
-		transport.MakeHandler("/api/v1/users", endpoints, errorLogger),
-		gokitprometheus.NewCounterFrom(prometheus.CounterOpts{
+	metrics := transport.NewMetricsHolder(gokitprometheus.NewCounterFrom(prometheus.CounterOpts{
+		Namespace: "app",
+		Name:      "request_count",
+		Help:      "Number of requests received.",
+	}, []string{"method", "endpoint", "status_code"}),
+		gokitprometheus.NewHistogramFrom(prometheus.HistogramOpts{
 			Namespace: "app",
-			Subsystem: "",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, []string{"method", "path", "status_code"}),
-		gokitprometheus.NewSummaryFrom(prometheus.SummaryOpts{
-			Namespace: "app",
-			Subsystem: "",
 			Name:      "request_latency_seconds",
 			Help:      "Total duration of request in seconds.",
-		}, []string{"method", "path"}))
+			Buckets:   prometheus.DefBuckets,
+		}, []string{"method", "endpoint"}))
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/api/v1/", userApiHandler)
+	mux.Handle("/api/v1/", transport.MakeHandler("/api/v1/users", endpoints, errorLogger, metrics))
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.Handle("/ready", probes.MakeReadyHandler())
 	mux.Handle("/live", probes.MakeLiveHandler())

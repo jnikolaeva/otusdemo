@@ -1,7 +1,7 @@
 APP_EXECUTABLE?=./bin/otusdemo
-RELEASE?=0.3
-MIGRATIONS_IMAGENAME?=arahna/otusdemo-migrations:release-$(RELEASE)
-IMAGENAME?=arahna/otusdemo:release-$(RELEASE)
+RELEASE?=0.4
+MIGRATIONS_IMAGENAME?=otusdemo-migrations:release-$(RELEASE)
+IMAGENAME?=otusdemo:release-$(RELEASE)
 
 .PHONY: clean
 clean:
@@ -28,7 +28,6 @@ run: build
 .PHONY: remove
 remove:
 	helm uninstall otusdemo
-	kubectl delete all --all
 
 .PHONY: minikube-run
 k8s-run: build

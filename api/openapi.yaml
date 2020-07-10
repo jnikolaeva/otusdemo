@@ -17,7 +17,7 @@ paths:
     post:
       tags:
         - user
-      summary: Create user
+      summary: Create a user
       description: This can only be done by the logged in user.
       operationId: createUser
       requestBody:
@@ -45,10 +45,30 @@ paths:
                 $ref: '#/components/schemas/User'
         "409":
           description: duplicate username or email
+    get:
+      tags:
+        - user
+      summary: List users
+      description: Returns a user list
+      operationId: list users
+      responses:
+        "200":
+          description: user list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /users/{userId}:
     get:
       tags:
         - user
+      summary: Find a user by id
       description: Returns a user based on a single ID, if the user does not have
         access to the user
       operationId: find user by id
@@ -69,8 +89,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        "409":
-          description: duplicate username or email
         default:
           description: unexpected error
           content:
@@ -80,6 +98,7 @@ paths:
     put:
       tags:
         - user
+      summary: Update a user by id
       description: Update user with User ID supplied
       operationId: updateUser
       parameters:
@@ -121,6 +140,7 @@ paths:
     delete:
       tags:
         - user
+      summary: Delete a user by id
       description: deletes a single user based on the ID supplied
       operationId: deleteUser
       parameters:
@@ -144,6 +164,13 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    UserList:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
     User:
       type: object
       properties:

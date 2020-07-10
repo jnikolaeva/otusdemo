@@ -21,6 +21,7 @@ type Repository interface {
 	NextID() UserID
 	Add(user User) error
 	FindByID(id UserID) (User, error)
+	Find() ([]*User, error)
 	Update(user User) error
 	Delete(id UserID) error
 }

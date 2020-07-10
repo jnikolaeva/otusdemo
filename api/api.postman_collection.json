@@ -22,6 +22,19 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1307a006-7b83-4b4f-89bd-cf366f45746c",
+								"exec": [
+									"pm.collectionVariables.set(\"username\", pm.variables.replaceIn('{{$randomUserName}}'))",
+									"pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'))",
+									"pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'))",
+									"pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'))"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -37,7 +50,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"username\": \"robert\",\n\t\"firstName\": \"Robert\"\n}",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\":  \"{{lastName}}\",\n  \"email\":  \"{{email}}\"\n}",
 							"options": {
 								"raw": {}
 							}
@@ -89,6 +102,20 @@
 				},
 				{
 					"name": "Find user by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0836cd02-b2ee-43c5-8322-6a0b5a9b1493",
+								"exec": [
+									"pm.test(\"test user found\", function () {",
+									"    pm.response.to.have.status(200);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -106,7 +133,68 @@
 					"response": []
 				},
 				{
+					"name": "List Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c47df265-3a0c-4936-9901-9d3b1f050a10",
+								"exec": [
+									"pm.test(\"test user list\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('users')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Update user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f92dbcca-86e3-42f0-aa99-466852199864",
+								"exec": [
+									"pm.collectionVariables.set(\"username\", pm.variables.replaceIn('{{$randomUserName}}'))",
+									"pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'))",
+									"pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'))",
+									"pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'))",
+									"pm.collectionVariables.set(\"phone\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "1857da7b-651e-4bab-a122-28a657052d9f",
+								"exec": [
+									"pm.test(\"test user updated\", function () {",
+									"    pm.response.to.have.status(200);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -120,7 +208,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"user1\",\n    \"firstName\": \"user\",\n    \"lastName\": \"last\",\n    \"email\": \"email@domain.com\",\n    \"phone\": \"327373208409\"\n}",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"{{phone}}\"\n}",
 							"options": {
 								"raw": {}
 							}
@@ -216,6 +304,20 @@
 				},
 				{
 					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2a564e9e-2289-40ae-8ed3-f659339b8a51",
+								"exec": [
+									"pm.test(\"test user deleted\", function () {",
+									"    pm.response.to.have.status(204);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -353,9 +455,45 @@
 	],
 	"variable": [
 		{
-			"id": "98a2dd12-b27f-41f7-9c41-138dce1a444d",
+			"id": "54a6d5b7-60bc-4130-9c4c-4957ad56ca23",
 			"key": "baseUrl",
 			"value": "http://arch.homework/otusapp/api/v1",
+			"type": "string"
+		},
+		{
+			"id": "5f022167-112c-4b78-8fe6-036b5527eecd",
+			"key": "email",
+			"value": "Yasmeen40@yahoo.com",
+			"type": "string"
+		},
+		{
+			"id": "b68c0dbc-9f1e-468f-b840-695c87112746",
+			"key": "firstName",
+			"value": "Neha",
+			"type": "string"
+		},
+		{
+			"id": "b78d3bcd-79bf-46f5-aa7f-e0674fbbc87c",
+			"key": "lastName",
+			"value": "Watsica",
+			"type": "string"
+		},
+		{
+			"id": "776564e7-d219-412f-9bdf-15fe6d603f72",
+			"key": "username",
+			"value": "Billie.Kessler",
+			"type": "string"
+		},
+		{
+			"id": "bff86551-9f01-4252-8860-23eedd6f56b0",
+			"key": "userId",
+			"value": "2e990b15-a62a-4dab-b44a-1f485187e99d",
+			"type": "string"
+		},
+		{
+			"id": "da9d92d8-8104-4256-bc68-c3dba4885176",
+			"key": "phone",
+			"value": "337-969-7932",
 			"type": "string"
 		}
 	],

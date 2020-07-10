@@ -1,6 +1,10 @@
-package transport
+package http
 
 import "github.com/arahna/otusdemo/pkg/uuid"
+
+type listUsersResponse struct {
+	Users []*userData `json:"users,omitempty"`
+}
 
 type createUserRequest struct {
 	userDetails

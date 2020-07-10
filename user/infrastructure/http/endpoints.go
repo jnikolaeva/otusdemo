@@ -1,12 +1,15 @@
-package transport
+package http
 
 import (
 	"context"
-	"github.com/arahna/otusdemo/user/application"
+
 	"github.com/go-kit/kit/endpoint"
+
+	"github.com/arahna/otusdemo/user/application"
 )
 
 type Endpoints struct {
+	ListUsers  endpoint.Endpoint
 	CreateUser endpoint.Endpoint
 	FindUser   endpoint.Endpoint
 	UpdateUser endpoint.Endpoint
@@ -15,10 +18,26 @@ type Endpoints struct {
 
 func MakeEndpoints(s application.Service) Endpoints {
 	return Endpoints{
+		ListUsers:  makeListUsersEndpoint(s),
 		CreateUser: makeCreateUserEndpoint(s),
 		FindUser:   makeFindUserEndpoint(s),
 		UpdateUser: makeUpdateUserEndpoint(s),
 		DeleteUser: makeDeleteUserEndpoint(s),
+	}
+}
+
+func makeListUsersEndpoint(s application.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		users, err := s.List()
+		if err != nil {
+			return &listUsersResponse{}, err
+		}
+		var userList []*userData
+		for _, user := range users {
+			userData := toUserData(*user)
+			userList = append(userList, &userData)
+		}
+		return &listUsersResponse{userList}, nil
 	}
 }
 

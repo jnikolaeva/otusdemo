@@ -13,6 +13,7 @@ var (
 type Service interface {
 	Create(username, firstName, lastName, email, phone string) (UserID, error)
 	FindByID(id uuid.UUID) (User, error)
+	List() ([]*User, error)
 	Update(id uuid.UUID, username, firstName, lastName, email, phone string) (User, error)
 	Delete(id uuid.UUID) error
 }
@@ -45,11 +46,11 @@ func (s service) Create(username, firstName, lastName, email, phone string) (Use
 }
 
 func (s service) FindByID(id uuid.UUID) (User, error) {
-	user, err := s.repo.FindByID(UserID(id))
-	if err != nil {
-		return user, err
-	}
-	return user, nil
+	return s.repo.FindByID(UserID(id))
+}
+
+func (s service) List() ([]*User, error) {
+	return s.repo.Find()
 }
 
 func (s service) Update(id uuid.UUID, username, firstName, lastName, email, phone string) (User, error) {

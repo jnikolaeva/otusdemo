@@ -47,7 +47,7 @@ func (r *repository) FindByID(id application.UserID) (application.User, error) {
 		if err == pgx.ErrNoRows {
 			err = application.ErrUserNotFound
 		}
-		return application.User{}, err
+		return application.User{}, errors.WithStack(err)
 	}
 	userID, _ := uuid.FromString(raw.ID)
 	user := application.User{
@@ -59,6 +59,38 @@ func (r *repository) FindByID(id application.UserID) (application.User, error) {
 		Phone:     raw.Phone,
 	}
 	return user, nil
+}
+
+func (r *repository) Find() ([]*application.User, error) {
+	var users []*application.User
+	query := "SELECT id, username, first_name, last_name, phone, email FROM users"
+	rows, err := r.connPool.Query(query)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			err = application.ErrUserNotFound
+		}
+		return users, errors.WithStack(err)
+	}
+	defer rows.Close()
+
+	var raw rawUser
+	for rows.Next() {
+		var user application.User
+		if err = rows.Scan(&raw.ID, &raw.Username, &raw.FirstName, &raw.LastName, &raw.Phone, &raw.Email); err != nil {
+			return users, err
+		}
+		userID, _ := uuid.FromString(raw.ID)
+		user = application.User{
+			ID:        application.UserID(userID),
+			Username:  raw.Username,
+			FirstName: raw.FirstName,
+			LastName:  raw.LastName,
+			Email:     raw.Email,
+			Phone:     raw.Phone,
+		}
+		users = append(users, &user)
+	}
+	return users, nil
 }
 
 func (r *repository) Update(user application.User) error {

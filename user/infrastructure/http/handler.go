@@ -1,4 +1,4 @@
-package transport
+package http
 
 import (
 	"context"
@@ -18,12 +18,13 @@ var (
 	ErrBadRouting = errors.New("bad routing")
 )
 
-func MakeHandler(pathPrefix string, endpoints Endpoints, errorLogger log.Logger) http.Handler {
+func MakeHandler(pathPrefix string, endpoints Endpoints, errorLogger log.Logger, metrics *MetricsHolder) http.Handler {
 	options := []gokithttp.ServerOption{
 		gokithttp.ServerErrorEncoder(encodeErrorResponse),
 		gokithttp.ServerErrorHandler(gokittransport.NewLogErrorHandler(errorLogger)),
 	}
 
+	listUsersHandler := gokithttp.NewServer(endpoints.ListUsers, decodeCreateUserRequest, encodeResponse, options...)
 	createUserHandler := gokithttp.NewServer(endpoints.CreateUser, decodeCreateUserRequest, encodeResponse, options...)
 	findUserHandler := gokithttp.NewServer(endpoints.FindUser, decodeFindUserRequest, encodeResponse, options...)
 	updateUserHandler := gokithttp.NewServer(endpoints.UpdateUser, decodeUpdateUserRequest, encodeResponse, options...)
@@ -31,10 +32,11 @@ func MakeHandler(pathPrefix string, endpoints Endpoints, errorLogger log.Logger)
 
 	r := mux.NewRouter()
 	s := r.PathPrefix(pathPrefix).Subrouter()
-	s.Handle("", createUserHandler).Methods(http.MethodPost)
-	s.Handle("/{userId}", findUserHandler).Methods(http.MethodGet)
-	s.Handle("/{userId}", updateUserHandler).Methods(http.MethodPut)
-	s.Handle("/{userId}", deleteUserHandler).Methods(http.MethodDelete)
+	s.Handle("", instrumentingMiddleware(listUsersHandler, metrics, "ListUsers")).Methods(http.MethodGet)
+	s.Handle("", instrumentingMiddleware(createUserHandler, metrics, "CreateUser")).Methods(http.MethodPost)
+	s.Handle("/{userId}", instrumentingMiddleware(findUserHandler, metrics, "FindUser")).Methods(http.MethodGet)
+	s.Handle("/{userId}", instrumentingMiddleware(updateUserHandler, metrics, "UpdateUser")).Methods(http.MethodPut)
+	s.Handle("/{userId}", instrumentingMiddleware(deleteUserHandler, metrics, "DeleteUser")).Methods(http.MethodDelete)
 	return r
 }
 
