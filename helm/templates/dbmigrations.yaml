@@ -16,6 +16,21 @@ spec:
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version}}"
     spec:
       restartPolicy: Never
+      initContainers:
+        - name: check-db-ready
+          image: postgres:latest
+          env:
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: otusdemo-secret
+                  key: DB_URI
+          command:
+            - sh
+            - "-c"
+            - |
+              until pg_isready -d $DB_URI;
+              do echo waiting for database; sleep 2; done;
       containers:
         - name: dbmigrations
           env:
