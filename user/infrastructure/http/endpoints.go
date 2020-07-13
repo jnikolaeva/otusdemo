@@ -44,7 +44,7 @@ func makeListUsersEndpoint(s application.Service) endpoint.Endpoint {
 func makeCreateUserEndpoint(s application.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(createUserRequest)
-		userID, err := s.Create(req.Username, req.FirstName, req.LastName, req.Phone, req.Email)
+		userID, err := s.Create(req.Username, req.FirstName, req.LastName, req.Email, req.Phone)
 		if err != nil {
 			return nil, err
 		}
