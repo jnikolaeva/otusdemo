@@ -3,6 +3,7 @@ module github.com/arahna/otusdemo
 go 1.14
 
 require (
+	github.com/bxcodec/faker/v3 v3.5.0
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/go-kit/kit v0.10.0
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
@@ -13,6 +14,7 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.3.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
 	github.com/sirupsen/logrus v1.5.0

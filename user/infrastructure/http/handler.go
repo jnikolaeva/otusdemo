@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
+
 	"github.com/arahna/otusdemo/pkg/uuid"
 	"github.com/arahna/otusdemo/user/application"
 	"github.com/go-kit/kit/log"
 	gokittransport "github.com/go-kit/kit/transport"
 	gokithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"io"
-	"net/http"
 )
 
 var (

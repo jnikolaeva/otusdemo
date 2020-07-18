@@ -3,7 +3,7 @@ package http
 import "github.com/arahna/otusdemo/pkg/uuid"
 
 type listUsersResponse struct {
-	Users []*userData `json:"users,omitempty"`
+	Users []*userData `json:"users"`
 }
 
 type createUserRequest struct {

@@ -18,7 +18,8 @@ spec:
       restartPolicy: Never
       initContainers:
         - name: check-db-ready
-          image: postgres:latest
+          image: postgres:12.2
+          imagePullPolicy: IfNotPresent
           env:
             - name: DB_URI
               valueFrom:

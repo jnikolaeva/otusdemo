@@ -1,12 +1,13 @@
 package postgres
 
 import (
-	"github.com/jackc/pgx"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/pkg/errors"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx"
+	"github.com/kelseyhightower/envconfig"
+	"github.com/pkg/errors"
 )
 
 type connConfig struct {
