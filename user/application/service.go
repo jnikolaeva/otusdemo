@@ -59,7 +59,9 @@ func (s service) Update(id uuid.UUID, username, firstName, lastName, email, phon
 		return user, err
 	}
 
-	user.Username = username
+	if username != "" {
+		user.Username = username
+	}
 	user.FirstName = firstName
 	user.LastName = lastName
 	user.Email = email
