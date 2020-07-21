@@ -1,18 +1,39 @@
-This is demo service for Otus architect course. It implements simple CRUD user REST API.
+Демо сервис, реализующий CRUD REST API по управлению пользователями и инструментированный метриками в формате Prometeus.
 
-Before running with helm at first time update helm dependencies:
+Чтобы мониторить метрики приложения, применим конфигмап для dashboard графаны и развернем Prometheus в namespace'е monitoring:
+
+```
+minikube addons disable ingress
+kubectl create namespace monitoring
+helm install prom stable/prometheus-operator -f prometheus.yaml --atomic -n monitoring
+helm install nginx stable/nginx-ingress -f nginx-ingress.yaml --atomic -n monitoring
+```
+
+Для мониторинга метрик БД установим postgres-exporter:
+
+```
+helm install postgre-metrics stable/prometheus-postgres-exporter -n monitoring
+```
+
+Создадим namespace для приложения и установим его в качестве текущего:
+
+```
+kubectl create namespace otus && kubectl config set-context --current --namespace=otus
+```
+
+Если приложение запускается в первый раз, необходимо обновить зависимости в helm:
 
 ```
 make helm-update-dependencies
 ```
 
-Then use:
+Устанавливаем приложение:
 
 ````
 make run
 ````
 
-Ensure everything is running:
+Убеждаемся, что все запущено:
 
 ```
 $ kubectl get all
@@ -37,28 +58,46 @@ NAME                                   READY   AGE
 statefulset.apps/otusdemo-postgresql   1/1     65s
 ```
 
-To remove:
+После запуска сервис доступен по адресу http://arch.homework/otusapp/.
 
-```
-make remove
-```
-
-To run without helm use:
-
-```
-make k8s-run
-```
-
-To remove:
-
-```
-make k8s-remove
-```
-
-To run end-2-end tests using newman:
+Для запуска end-2-end тестов, используя newman:
 
 ```
 newman run ./api/api.postman_collection.json
 ```
 
-After running service is available by url http://arch.homework/otusapp/.
+Для удаления приложения:
+
+```
+make remove
+```
+
+Запускаем прометей:
+
+```
+kubectl port-forward -n monitoring service/prom-prometheus-operator-prometheus 9090
+```
+
+и графану
+
+```
+kubectl port-forward -n monitoring service/prom-grafana 9000:80
+```
+
+и импортируем в нее дашборд
+ 
+```
+kubectl apply -n monitoring -f grafana.yaml
+```
+
+Запускаем stress тест:
+
+```
+make run-stresstest
+```
+
+Останавливаем stress тест:
+
+```
+make stop-stresstest
+```

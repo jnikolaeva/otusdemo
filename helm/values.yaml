@@ -4,15 +4,17 @@
 
 replicaCount: 3
 
+fullnameOverride: otusdemo
+
 image:
   repository: arahna/otusdemo
   pullPolicy: IfNotPresent
-  tag: release-0.3
+  tag: release-0.4
 
 migrationsimage:
   repository: arahna/otusdemo-migrations
   pullPolicy: IfNotPresent
-  tag: release-0.3
+  tag: release-0.4
 
 service:
   type: NodePort
@@ -25,6 +27,26 @@ postgresql:
   postgresqlDatabase: otusdemo
   service:
     port: "5432"
+  metrics:
+    enabled: true
+    service:
+      type: NodePort
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+    serviceMonitor:
+      enabled: true
+      additionalLabels: {}
+      interval: 30s
+      scrapeTimeout: 10s
+    config:
+      datasourceSecret:
+        name: otusdemo-secret
+        key: DB_URI
+
+metrics:
+  serviceMonitor:
+    enabled: true
 
 ingress:
   enabled: true

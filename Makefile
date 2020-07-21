@@ -1,7 +1,8 @@
 APP_EXECUTABLE?=./bin/otusdemo
 RELEASE?=0.4
-MIGRATIONS_IMAGENAME?=otusdemo-migrations:release-$(RELEASE)
-IMAGENAME?=otusdemo:release-$(RELEASE)
+MIGRATIONS_IMAGENAME?=arahna/otusdemo-migrations:release-$(RELEASE)
+IMAGENAME?=arahna/otusdemo:release-$(RELEASE)
+LOCUST_IMAGENAME?=arahna/otusdemo-locust:latest
 
 .PHONY: clean
 clean:
@@ -28,6 +29,15 @@ run: build
 .PHONY: remove
 remove:
 	helm uninstall otusdemo
+
+.PHONY: run-stresstest
+run-stresstest:
+	docker build -t ${LOCUST_IMAGENAME} ./locust
+	kubectl apply -f stresstest.yaml
+
+.PHONY: stop-stresstest
+stop-stresstest:
+	kubectl delete -f stresstest.yaml
 
 .PHONY: minikube-run
 k8s-run: build
