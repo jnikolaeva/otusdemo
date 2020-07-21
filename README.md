@@ -104,5 +104,5 @@ make run-stresstest
 make stop-stresstest
 ```
 
-![Dashboard1](README.assets/Screenshot from 2020-07-21 11-37-02.png)
-![Dashboard2](README.assets/Screenshot from 2020-07-21 11-37-32.png)
+![](README.assets/Screenshot1.png)
+![](README.assets/Screenshot2.png)
