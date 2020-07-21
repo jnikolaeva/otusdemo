@@ -37,25 +37,27 @@ make run
 
 ```
 $ kubectl get all
-NAME                                 READY   STATUS    RESTARTS   AGE
-pod/otusdemo-685f9cbd7b-g5mrr        1/1     Running   2          65s
-pod/otusdemo-685f9cbd7b-nsttc        1/1     Running   2          65s
-pod/otusdemo-685f9cbd7b-schxk        1/1     Running   2          65s
-pod/otusdemo-postgresql-0            1/1     Running   0          65s
+
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/otusdemo-74d5d45c9b-fvs88   1/1     Running   6          7m8s
+pod/otusdemo-74d5d45c9b-ntd7b   1/1     Running   6          7m8s
+pod/otusdemo-74d5d45c9b-xvqzt   1/1     Running   6          7m8s
+pod/otusdemo-postgresql-0       2/2     Running   0          7m8s
 
 NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-service/otusdemo                       NodePort    10.111.58.236   <none>        9000:31119/TCP   65s
-service/otusdemo-postgresql            ClusterIP   10.100.24.81    <none>        5432/TCP         65s
-service/otusdemo-postgresql-headless   ClusterIP   None            <none>        5432/TCP         65s
+service/otusdemo                       NodePort    10.110.28.84    <none>        9000:32560/TCP   7m8s
+service/otusdemo-postgresql            ClusterIP   10.98.222.213   <none>        5432/TCP         7m8s
+service/otusdemo-postgresql-headless   ClusterIP   None            <none>        5432/TCP         7m8s
+service/otusdemo-postgresql-metrics    NodePort    10.107.71.96    <none>        9187:31753/TCP   7m8s
 
-NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/otusdemo        3/3     3            3           65s
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/otusdemo   3/3     3            3           7m8s
 
-NAME                                       DESIRED   CURRENT   READY   AGE
-replicaset.apps/otusdemo-685f9cbd7b        3         3         3       65s
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/otusdemo-74d5d45c9b   3         3         3       7m8s
 
 NAME                                   READY   AGE
-statefulset.apps/otusdemo-postgresql   1/1     65s
+statefulset.apps/otusdemo-postgresql   1/1     7m8s
 ```
 
 После запуска сервис доступен по адресу http://arch.homework/otusapp/.
@@ -84,7 +86,7 @@ kubectl port-forward -n monitoring service/prom-prometheus-operator-prometheus 9
 kubectl port-forward -n monitoring service/prom-grafana 9000:80
 ```
 
-и импортируем в нее дашборд
+и импортируем в нее дашборд User API:
  
 ```
 kubectl apply -n monitoring -f grafana.yaml
@@ -101,3 +103,6 @@ make run-stresstest
 ```
 make stop-stresstest
 ```
+
+![Dashboard1](README.assets/Screenshot from 2020-07-21 11-37-02.png)
+![Dashboard2](README.assets/Screenshot from 2020-07-21 11-37-32.png)
