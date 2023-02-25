@@ -19,6 +19,6 @@ require (
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
 	github.com/sirupsen/logrus v1.5.0
 	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
-	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
